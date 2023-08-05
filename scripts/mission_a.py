@@ -12,6 +12,8 @@ import serial
 import threading
 import os
 import cv2
+from math import abs
+from yolov5_detect import get_center_diffs_yolo
 
 ################################################################################
 # Vision / CV / ML
@@ -28,6 +30,11 @@ class CV:
         return self.frame
 
 cv = CV()
+
+cv_model_path = "/home/sw8/SW8S-Java/app/models/buoy_640.onnx"
+
+net = cv2.dnn.readNet(cv_model_path)
+net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 
 def start_capture():
@@ -138,6 +145,19 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Stop motion
     print("Stopping")
     cb.set_local(0, 0, 0, 0, 0, 0)
+
+    # try and find buoys
+    while True:
+        frame = cv.get_frame()
+        strafe = 0
+        if frame != None:
+            diffs = get_center_diffs_yolo()
+            if diffs != None:
+                if abs(diffs["x"]) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                    strafe = 0.4 if diffs["x"] < 0 else -0.4
+                else:
+                    strafe = 0
+        cb.set_sassist2(strafe, 0.4, 0, 0, buoy_heading, mission_depth)
 
     return 0
 

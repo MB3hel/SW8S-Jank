@@ -66,8 +66,10 @@ def yolo_onnx(image, net):
     avgs = (x_avg, y_avg)
     return (image, avgs)
 
-def get_center_yolo(image, net):
-    yolo = yolo_onnx(image=image, net=net)
+def get_center_diffs_yolo(image, net):
+    yolo = yolo_onnx(image=image.copy(), net=net)
+    if image == yolo[0]:
+        return None
     avgs = yolo[1]
     diffs = {"y": 320 - avgs[1], "x": 400 - avgs[0]}
     return diffs

@@ -196,6 +196,16 @@ def run(cb: ControlBoard, s: Simulator) -> int:
             cb.set_sassist2(strafe, forward_speed, 0, 0, buoy_heading, buoy_depth)
             if time.time() - start_wait > 20:
                 break
+    
+    if False:
+        print("Backup")
+        cb.set_sassist2(0, -0.4, 0, 0, buoy_heading, buoy_depth)
+        moving_delay(cb, 3)
+
+        print("Forward again")
+        cb.set_sassist2(0, 0.4, 0, 0, buoy_heading, buoy_depth)
+        moving_delay(cb, 10)
+
 
     # Stop motion
     print("Stopping")

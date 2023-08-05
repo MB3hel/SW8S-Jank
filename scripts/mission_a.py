@@ -5,13 +5,27 @@ if __name__ == "__main__":
     exit(1)
 
 from control_board import ControlBoard, Simulator
-import comm
+import meb
 import serial
 import threading
 import os
+from yolov5_detect import yolo_onnx
+import cv2
 
 spin_after = 10.0       # Seconds to do style spins after
 spin_duration = 5.0     # How long to spin for
+
+class CV:
+    def __init__(self):
+        self.frame = None
+    
+    def set_frame(self, frame):
+        self.frame = frame
+    
+    def get_frame(self):
+        return self.frame
+
+cv = CV()
 
 def moving_delay(cb: ControlBoard, sec: float):
     start_time = time.time()
@@ -22,16 +36,23 @@ def moving_delay(cb: ControlBoard, sec: float):
 def kill_check():
     ser = serial.Serial("/dev/ttyACM2", 57600)
     while True:
-        msg_id, msg = comm.read_msg(ser)
+        msg_id, msg = meb.read_msg(ser)
         if msg.startswith(b'TARM'):
             is_armed = (msg[4] == 1)
             if not is_armed:
                 print("KILLED EXITING")
                 os._exit(6)
 
+def start_capture():
+    video = cv2.VideoCapture(0)
+    ret, im = video.read()
+    cv.set_frame(im)
+
 def run(cb: ControlBoard, s: Simulator) -> int:
     t = threading.Thread(target=kill_check, daemon=True)
+    cam = threading.Thread(target=start_capture)
     t.start()
+    cam.start()
 
     # Enable automatic reading of sensor data (and wait for it to start)
     cb.read_bno055_periodic(True)

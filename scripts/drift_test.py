@@ -26,9 +26,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Submerge holding heading
     print("Submerging")
     cb.set_sassist2(0, 0, 0, 0, initial_heading, -0.8)
-    moving_delay(cb, 10)
-
-    return
+    moving_delay(cb, 1.25)
 
     # Move forward maintaining same heading
     print("Moving forward")

@@ -31,7 +31,7 @@ class CV:
 
 cv = CV()
 
-cv_model_path = os.path.dirname(os.path.dirname(__file__)) + "/models/buoy_640.onnx"
+cv_model_path = os.path.dirname(os.path.dirname(__file__)) + "/models/buoy_320.onnx"
 
 net = cv2.dnn.readNet(cv_model_path)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)

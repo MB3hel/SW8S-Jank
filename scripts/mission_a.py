@@ -39,8 +39,9 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 def start_capture():
     video = cv2.VideoCapture(0)
-    ret, im = video.read()
-    cv.set_frame(im)
+    while True:
+        ret, im = video.read()
+        cv.set_frame(im)
 
 ################################################################################
 
@@ -102,7 +103,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     moving_delay(cb, 3)
 
     # Do style points spins
-    if True:
+    if False:
         # Yaw spins
         print("Spinning yaw")
         cb.set_sassist1(0, 0, 0.6, 0, 0, mission_depth)

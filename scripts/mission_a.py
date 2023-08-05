@@ -73,9 +73,16 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     moving_delay(cb, 10)
 
     # Do style points spins
-    print("Spinning")
-    cb.set_sassist1(0, 0, 1.0, 0, 0, -1.5)
-    moving_delay(cb, 5)
+    if True:
+        # Yaw spins
+        print("Spinning yaw")
+        cb.set_sassist1(0, 0, 1.0, 0, 0, -1.5)
+        moving_delay(cb, 5)
+    else:
+        # Roll spins
+        print("Spinning roll")
+        cb.set_dhold(0, 0, 0, 0.8, 0, -1.5)
+        moving_delay(cb, 5)
 
     # Get back to correct heading
     print("Fixing heading")

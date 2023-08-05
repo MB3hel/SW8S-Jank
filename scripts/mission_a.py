@@ -1,37 +1,58 @@
 import time
 
+
 if __name__ == "__main__":
     print("Do not run this script directly. Use launch.py to run it.")
     exit(1)
 
+
 from control_board import ControlBoard, Simulator
-import comm
+import meb
 import serial
 import threading
 import os
 
-spin_after = 10.0       # Seconds to do style spins after
-spin_duration = 5.0     # How long to spin for
+################################################################################
+# MEB Comms
+################################################################################
 
+def meb_task():
+    ser = None
+    try:
+        ser = serial.Serial("/dev/ttyACM2", 57600)
+    except:
+        print("Failed to connect to MEB")
+        return
+    
+    while True:
+        # Read message and handle it
+        msg_id, msg = meb.read_msg(ser)
+        if msg.startswith(b'TARM'):
+            is_armed = (msg[4] == 1)
+            if not is_armed:
+                print("Thrusters killed. Ending code!")
+                os._exit(6)
+
+################################################################################
+
+
+################################################################################
+# Mission code
+################################################################################
+
+
+# Delay for an amount of time (nearest 20ms) while keeping 
+# the control board watchdog fed (thus motors keep moving)
 def moving_delay(cb: ControlBoard, sec: float):
     start_time = time.time()
     while time.time() - start_time < sec:
         cb.feed_motor_watchdog()
-        time.sleep(0.1)
+        time.sleep(0.02)
 
-def kill_check():
-    ser = serial.Serial("/dev/ttyACM2", 57600)
-    while True:
-        msg_id, msg = comm.read_msg(ser)
-        if msg.startswith(b'TARM'):
-            is_armed = (msg[4] == 1)
-            if not is_armed:
-                print("KILLED EXITING")
-                os._exit(6)
 
 def run(cb: ControlBoard, s: Simulator) -> int:
-    t = threading.Thread(target=kill_check, daemon=True)
-    t.start()
+    meb_thread = threading.Thread(target=meb_task, daemon=True)
+    meb_thread.start()
 
     # Enable automatic reading of sensor data (and wait for it to start)
     cb.read_bno055_periodic(True)
@@ -49,16 +70,17 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Move forward maintaining same heading
     print("Moving forward")
     cb.set_sassist2(0, 0.8, 0, 0, initial_heading, -1.5)
-    moving_delay(cb, spin_after)
+    moving_delay(cb, 10)
 
     # Do style points spins
     print("Spinning")
     cb.set_sassist1(0, 0, 1.0, 0, 0, -1.5)
-    moving_delay(cb, spin_duration)
+    moving_delay(cb, 5)
 
     # Get back to correct heading
     print("Fixing heading")
-    cb.set_sassist2(0, 0.0, 0, 0, initial_heading, -1.5)
+    print(initial_heading)
+    cb.set_sassist2(0, 0, 0, 0, initial_heading, -1.5)
     moving_delay(cb, 3)
 
     # Move forward
@@ -71,3 +93,5 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     cb.set_local(0, 0, 0, 0, 0, 0)
 
     return 0
+
+################################################################################

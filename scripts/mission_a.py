@@ -12,6 +12,7 @@ import serial
 import threading
 import os
 import cv2
+import time
 from yolov5_detect import get_center_diffs_yolo
 
 ################################################################################
@@ -100,35 +101,38 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Submerge holding heading
     print("Submerging")
     cb.set_sassist2(0, 0, 0, 0, initial_heading, mission_depth)
-    moving_delay(cb, 1.25)
+    moving_delay(cb, 3)
 
     # Move forward maintaining same heading
     print("Moving forward")
     cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
-    moving_delay(cb, 3)
+    moving_delay(cb, 10)
 
     # Do style points spins
     if False:
         # Yaw spins
         print("Spinning yaw")
-        cb.set_sassist1(0, 0, 0.6, 0, 0, mission_depth)
+        cb.set_sassist1(0, 0, 0.8, 0, 0, mission_depth)
         sayaw = cb.get_bno055_data().accum_yaw
         while abs(cb.get_bno055_data().accum_yaw - sayaw) < 720:
             moving_delay(cb, 0.5)
     else:
         # Roll spins
         print("Spinning roll")
-        cb.set_dhold(0, 0, 0, 0.8, 0, mission_depth)
-        moving_delay(cb, 5)
+        cb.set_dhold(0, 0, 0, 0.6, 0, mission_depth)
+        moving_delay(cb, 3.5)
 
     # Get back to correct orientation
     print("Fixing orientation")
     cb.set_sassist2(0, 0, 0, 0, initial_heading, mission_depth)
+    start_wait = time.time()
     while abs(cb.get_bno055_data().pitch - 0) > 5 or \
             abs(cb.get_bno055_data().roll - 0) > 5 or \
             abs(cb.get_bno055_data().yaw - initial_heading) > 5:
         moving_delay(cb, 0.02)
-    moving_delay(cb, 1)
+        if time.time() - start_wait > 5:
+            break
+    moving_delay(cb, 3)
 
     # Move forward
     print("Moving forward again")
@@ -140,17 +144,21 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     print("Yaw to buoy")
     cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, buoy_depth)
     buoy_heading = initial_heading + 15
+    start_wait = time.time()
     while abs(cb.get_bno055_data().yaw - buoy_heading) > 3:
         moving_delay(cb, 0.02)
+        if time.time() - start_wait > 5:
+            break
     moving_delay(cb, 2)
 
     if False:
         # Move towards buoy (dead reckon)
         print("Go to buoy")
-        cb.set_sassist2(0, forward_speed, 0, 0, buoy_heading, mission_depth)
-        moving_delay(cb, 2)
+        cb.set_sassist2(0, forward_speed, 0, 0, buoy_heading, buoy_depth)
+        moving_delay(cb, 20)
     else:
         # try and find buoys (CV / ML)
+        start_wait = time.time()
         while True:
             frame = cv.get_frame()
             strafe_speed = 0.3
@@ -166,7 +174,9 @@ def run(cb: ControlBoard, s: Simulator) -> int:
                             strafe = 0
                     else:
                         strafe = 0
-            cb.set_sassist2(strafe, forward_speed, 0, 0, buoy_heading, mission_depth)
+            cb.set_sassist2(strafe, forward_speed, 0, 0, buoy_heading, buoy_depth)
+            if time.time() - start_wait > 20:
+                break
 
     # Stop motion
     print("Stopping")

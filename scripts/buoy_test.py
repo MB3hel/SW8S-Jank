@@ -30,7 +30,7 @@ class CV:
 
 cv = CV()
 
-cv_model_path = os.path.dirname(os.path.dirname(__file__)) + "/models/buoy_640.onnx"
+cv_model_path = os.path.dirname(os.path.dirname(__file__)) + "/models/buoy_320.onnx"
 
 net = cv2.dnn.readNet(cv_model_path)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
@@ -44,7 +44,7 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 def start_capture():
     while True:
-        im = cv2.imread("/home/marcus/buoy_right.png")
+        im = cv2.imread("/home/marcus/buoy_real2.png")
         cv.set_frame(im)
         time.sleep(0.015)
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import copy
 
 def yolo_onnx(image, net):
-    IMG_SIZE = 640
+    IMG_SIZE = 320
     print(cv2.__version__)
     
     #print(image.shape)

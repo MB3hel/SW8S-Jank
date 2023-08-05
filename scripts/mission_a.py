@@ -79,7 +79,9 @@ def run(cb: ControlBoard, s: Simulator) -> int:
         # Yaw spins
         print("Spinning yaw")
         cb.set_sassist1(0, 0, 0.6, 0, 0, mission_depth)
-        moving_delay(cb, 5)
+        sayaw = cb.get_bno055_data().accum_yaw
+        while abs(cb.get_bno055_data().accum_yaw - sayaw) < 720:
+            moving_delay(cb, 0.5)
     else:
         # Roll spins
         print("Spinning roll")
@@ -88,7 +90,6 @@ def run(cb: ControlBoard, s: Simulator) -> int:
 
     # Get back to correct orientation
     print("Fixing orientation")
-    print(initial_heading)
     cb.set_sassist2(0, 0, 0, 0, initial_heading, mission_depth)
     while abs(cb.get_bno055_data().pitch - 0) > 5 or \
             abs(cb.get_bno055_data().roll - 0) > 5 or \

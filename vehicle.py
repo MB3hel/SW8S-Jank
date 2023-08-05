@@ -194,17 +194,17 @@ class SW8(Vehicle):
     @property
     def yrot_pid_tuning(self) -> Tuple[float, float, float, float, bool]:
         #       kP      kI      kD      lim     invert
-        return  0.15,   0.0,    0.0,    0.1,    False
+        return  0.22,   0.0,    0.0,    0.3,    False
     
     @property
     def zrot_pid_tuning(self) -> Tuple[float, float, float, float, bool]:
         #       kP      kI      kD      lim     invert
-        return  0.8,    0.0,    0.0,    0.8,    False
+        return  1.4,    0.0,    0.0,    0.8,    False
 
     @property
     def depth_pid_tuning(self) -> Tuple[float, float, float, float, bool]:
         #       kP      kI      kD      lim     invert
-        return  1.5,    0.0,    0.0,    1.0,    False
+        return  1.8,    0,    0.0,    1.0,    False
         # return 0,       0,      0,      0,      False
 
 

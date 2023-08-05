@@ -43,11 +43,11 @@ def yolo_onnx(image, net):
                     boxes.append(box)
 
     if (len(boxes) == 0):
-        return image
+        return (image, None)
     indices = []
     #for box in enumerate(boxes):
     indices = cv2.dnn.NMSBoxes(boxes, confidences, 0.25, 0.3)
-    print(indices)
+    # print(indices)
     centers = []
     cv2.circle(image, (400, 320), 10, (0, 255, 0), 4)
     if len(indices) > 0:
@@ -65,11 +65,12 @@ def yolo_onnx(image, net):
     avgs = (x_avg, y_avg)
     return (image, avgs)
 
+
 def get_center_diffs_yolo(image, net):
     yolo = yolo_onnx(image=image.copy(), net=net)
-    if image is yolo[0]:
-        return None
     avgs = yolo[1]
+    if avgs is None:
+        return None
     diffs = {"y": 320 - avgs[1], "x": 400 - avgs[0]}
     return diffs
 

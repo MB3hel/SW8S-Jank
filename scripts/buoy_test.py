@@ -44,7 +44,7 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 def start_capture():
     while True:
-        im = cv2.imread("/home/marcus/buoy_real1.png")
+        im = cv2.imread("/home/marcus/buoy_right.png")
         cv.set_frame(im)
         time.sleep(0.015)
 
@@ -116,14 +116,15 @@ def run(cb: ControlBoard, s: Simulator) -> int:
             if frame is not None:
                 diffs = get_center_diffs_yolo(frame, net)
                 if diffs != None and "x" in diffs:
-                    if not hasattr(diffs["x"], "__len__"):
-                        xdiff = diffs["x"]
-                        if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
-                            strafe = strafe_speed if xdiff < 0 else -strafe_speed
-                        else:
-                            strafe = 0
+                    xdiff = diffs["x"]
+                    print("Buou x: ", xdiff)
+                    if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                        strafe = strafe_speed if xdiff < 0 else -strafe_speed
                     else:
                         strafe = 0
+                else:
+                    print("No buoy")
+                    strafe = 0
             cb.set_sassist2(strafe, 0.4, 0, 0, initial_heading, mission_depth)
 
     # Stop motion

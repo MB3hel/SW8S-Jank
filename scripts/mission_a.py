@@ -155,9 +155,10 @@ def run(cb: ControlBoard, s: Simulator) -> int:
             strafe = 0
             if frame is not None:
                 diffs = get_center_diffs_yolo(frame, net)
+                xdiff = diffs["x"][0]
                 if diffs != None:
-                    if abs(diffs["x"]) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
-                        strafe = strafe_speed if diffs["x"] < 0 else -strafe_speed
+                    if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                        strafe = strafe_speed if xdiff < 0 else -strafe_speed
                     else:
                         strafe = 0
             cb.set_sassist2(strafe, 0.4, 0, 0, buoy_heading, mission_depth)

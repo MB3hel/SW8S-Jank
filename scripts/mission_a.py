@@ -11,9 +11,11 @@ import meb
 import serial
 import threading
 import os
+import cv2
 
-spin_after = 10.0       # Seconds to do style spins after
-spin_duration = 5.0     # How long to spin for
+################################################################################
+# Vision / CV / ML
+################################################################################
 
 class CV:
     def __init__(self):
@@ -27,11 +29,18 @@ class CV:
 
 cv = CV()
 
-def moving_delay(cb: ControlBoard, sec: float):
-    start_time = time.time()
-    while time.time() - start_time < sec:
-        cb.feed_motor_watchdog()
-        time.sleep(0.02)
+
+def start_capture():
+    video = cv2.VideoCapture(0)
+    ret, im = video.read()
+    cv.set_frame(im)
+
+################################################################################
+
+
+################################################################################
+# MEB
+################################################################################
 
 def meb_task():
     ser = serial.Serial("/dev/ttyACM2", 57600)
@@ -43,10 +52,19 @@ def meb_task():
                 print("Thrusters killed. Ending code!")
                 os._exit(6)
 
-def start_capture():
-    video = cv2.VideoCapture(0)
-    ret, im = video.read()
-    cv.set_frame(im)
+################################################################################
+
+
+################################################################################
+# Mission code
+################################################################################
+
+def moving_delay(cb: ControlBoard, sec: float):
+    start_time = time.time()
+    while time.time() - start_time < sec:
+        cb.feed_motor_watchdog()
+        time.sleep(0.02)
+
 
 def run(cb: ControlBoard, s: Simulator) -> int:
     cam = threading.Thread(target=start_capture)

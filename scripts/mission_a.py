@@ -122,10 +122,10 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Move forward maintaining same heading
     print("Moving forward")
     cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
-    moving_delay(cb, 17)
+    moving_delay(cb, 24)
 
     # Do style points spins
-    if False:
+    if True:
         # Yaw spins
         print("Spinning yaw")
         cb.set_sassist1(0, 0, 0.8, 0, 0, mission_depth)
@@ -158,18 +158,19 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # moving_delay(cb, 2)
 
     # Yaw to face buoy & submerge more
-    buoy_depth = -2.5
-    print("Yaw to buoy")
-    cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, buoy_depth)
-    buoy_heading = initial_heading + 15
-    start_wait = time.time()
-    while abs(cb.get_bno055_data().yaw - buoy_heading) > 3:
-        moving_delay(cb, 0.02)
-        if time.time() - start_wait > 5:
-            break
-    moving_delay(cb, 2)
+    buoy_depth = mission_depth
+    buoy_heading = initial_heading
+    # print("Yaw to buoy")
+    # cb.set_sassist2(0, 0, 0, 0, initial_heading + 45, buoy_depth)
+    # buoy_heading = initial_heading + 45
+    # start_wait = time.time()
+    # while abs(cb.get_bno055_data().yaw - buoy_heading) > 3:
+    #     moving_delay(cb, 0.02)
+    #     if time.time() - start_wait > 5:
+    #         break
+    # moving_delay(cb, 2)
 
-    if False:
+    if True:
         # Move towards buoy (dead reckon)
         print("Go to buoy")
         cb.set_sassist2(0, forward_speed, 0, 0, buoy_heading, buoy_depth)
@@ -210,6 +211,9 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Stop motion
     print("Stopping")
     cb.set_local(0, 0, 0, 0, 0, 0)
+
+    while(True):
+        time.sleep(1)
 
     return 0
 

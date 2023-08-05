@@ -103,7 +103,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     meb_thread = threading.Thread(target=meb_task, daemon=True)
     meb_thread.start()
 
-    mission_depth = -1.5
+    mission_depth = -2.5
     forward_speed = 0.8
 
     # Enable automatic reading of sensor data (and wait for it to start)
@@ -137,7 +137,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
         print("Spinning roll")
         cb.set_dhold(0, 0, 0, 0.6, 0, mission_depth)
         saroll = cb.get_bno055_data().accum_roll
-        while abs(cb.get_bno055_data().accum_roll - saroll) < 320:
+        while abs(cb.get_bno055_data().accum_roll - saroll) < 270:
             moving_delay(cb, 0.5)
 
     # Get back to correct orientation
@@ -158,7 +158,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # moving_delay(cb, 2)
 
     # Yaw to face buoy & submerge more
-    buoy_depth = -2.0
+    buoy_depth = -2.5
     print("Yaw to buoy")
     cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, buoy_depth)
     buoy_heading = initial_heading + 15

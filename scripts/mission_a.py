@@ -13,6 +13,7 @@ import threading
 import os
 import cv2
 import time
+import random
 from yolov5_detect import get_center_diffs_yolo
 
 ################################################################################
@@ -37,8 +38,22 @@ net = cv2.dnn.readNet(cv_model_path)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 
+def save_file():
+    f = ""
+    while True:
+        f = "/mnt/data/py_record/camFRONT_" + str(random.randint(0, 999999))
+        if not os.path.exists(f):
+            break
+    return f
+
+
 def start_capture():
-    video = cv2.VideoCapture("v4l2src device=/dev/video0 ! image/jpeg, width=800, height=600, framerate=30/1", cv2.CAP_GSTREAMER)
+    cap0Pl = "v4l2src device=/dev/video0 ! image/jpeg, width=800, height=600, framerate=30/1" + " ! jpegdec ! tee name=raw " + \
+            "raw. ! queue  ! videoconvert ! appsink " + \
+            "raw. ! queue  ! videoconvert ! x264enc tune=zerolatency speed-preset=ultrafast bitrate=2048000 ! video/x-h264,profile=baseline" + " ! tee name=h264 " +\
+            "h264. ! queue ! h264parse config_interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! rtspclientsink location=rtsp://127.0.0.1:8554/cam0 " + \
+            "h264. ! queue ! mpegtsmux ! filesink location=\"" + save_file() + "\" "; 
+    video = cv2.VideoCapture(cap0Pl, cv2.CAP_GSTREAMER)
     # TODO: Exposure
     while True:
         ret, im = video.read()

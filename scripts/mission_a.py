@@ -122,7 +122,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     # Move forward maintaining same heading
     print("Moving forward")
     cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
-    moving_delay(cb, 10)
+    moving_delay(cb, 17)
 
     # Do style points spins
     if False:
@@ -136,7 +136,9 @@ def run(cb: ControlBoard, s: Simulator) -> int:
         # Roll spins
         print("Spinning roll")
         cb.set_dhold(0, 0, 0, 0.6, 0, mission_depth)
-        moving_delay(cb, 3.5)
+        saroll = cb.get_bno055_data().accum_roll
+        while abs(cb.get_bno055_data().accum_roll - saroll) < 320:
+            moving_delay(cb, 0.5)
 
     # Get back to correct orientation
     print("Fixing orientation")
@@ -151,9 +153,9 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     moving_delay(cb, 3)
 
     # Move forward
-    print("Moving forward again")
-    cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
-    moving_delay(cb, 2)
+    # print("Moving forward again")
+    # cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
+    # moving_delay(cb, 2)
 
     # Yaw to face buoy & submerge more
     buoy_depth = -2.0
@@ -174,6 +176,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
         moving_delay(cb, 20)
     else:
         # try and find buoys (CV / ML)
+        print("Vision to buoy")
         start_wait = time.time()
         while True:
             frame = cv.get_frame()

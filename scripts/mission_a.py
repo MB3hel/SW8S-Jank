@@ -41,7 +41,7 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 def save_file():
     f = ""
     while True:
-        f = "/mnt/data/py_record/camFRONT_" + str(random.randint(0, 999999))
+        f = "/mnt/data/py_record/camFRONT_" + str(random.randint(0, 999999)) + ".mp4"
         if not os.path.exists(f):
             break
     return f
@@ -52,9 +52,8 @@ def start_capture():
             "raw. ! queue  ! videoconvert ! appsink " + \
             "raw. ! queue  ! videoconvert ! x264enc tune=zerolatency speed-preset=ultrafast bitrate=2048000 ! video/x-h264,profile=baseline" + " ! tee name=h264 " +\
             "h264. ! queue ! h264parse config_interval=-1 ! video/x-h264,stream-format=byte-stream,alignment=au ! rtspclientsink location=rtsp://127.0.0.1:8554/cam0 " + \
-            "h264. ! queue ! mpegtsmux ! filesink location=\"" + save_file() + "\" "; 
+            "h264. ! queue ! mpegtsmux ! filesink location=\"" + save_file() + "\" "
     video = cv2.VideoCapture(cap0Pl, cv2.CAP_GSTREAMER)
-    # TODO: Exposure
     while True:
         ret, im = video.read()
         cv.set_frame(im)
@@ -73,6 +72,7 @@ def start_capture():
 ################################################################################
 
 def meb_task():
+    return
     ser = serial.Serial("/dev/ttyACM2", 57600)
     while True:
         msg_id, msg = meb.read_msg(ser)

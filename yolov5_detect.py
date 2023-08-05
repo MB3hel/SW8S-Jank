@@ -1,7 +1,6 @@
 import cv2
 import numpy as np
 import time
-import matplotlib.pyplot as plt
 import copy
 
 def yolo_onnx(image, net):
@@ -73,30 +72,3 @@ def get_center_diffs_yolo(image, net):
         return None
     diffs = {"y": 320 - avgs[1], "x": 400 - avgs[0]}
     return diffs
-
-if __name__ == "__main__":
-    model_path = "/home/jimmy/SW8S-Java/app/models/"
-    frames_path = "/home/jimmy/Downloads/frames/"
-    yolo = "/home/jimmy/yolov5/"
-    pt_model_path = model_path + "buoy_640.pt"
-    cv_model_path = model_path + "buoy_640.onnx"
-    img = "vlcsnap-2023-08-02-14h26m12s964.png"
-
-    frame = cv2.imread(frames_path + img)
-    net = cv2.dnn.readNet(cv_model_path)
-    net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
-    print('net loaded')
-    onnx = yolo_onnx(frame.copy(), net)
-    cv2_drawn = onnx[0]
-    avgs = onnx[1]
-    print(400 - avgs[0], 320 - avgs[1])
-    plt.imshow(np.hstack([frame,cv2_drawn]))
-    plt.show()
-
-    # PyTorch
-    # clone the yolov5 repo for the offline directory
-    # pt_model = torch.hub.load(yolo, 'custom', path=pt_model_path, source='local')
-    # pt_output = yolo_pt(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), pt_model.cuda())
-    # pt_output.show()
-    # print(pt_output.pandas().xyxy[0]) # pandas output [top left x, y, bottom right x, y, conf, class, name]
-    # print(pt_output)

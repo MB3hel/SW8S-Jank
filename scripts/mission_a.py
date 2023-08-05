@@ -102,6 +102,19 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     cb.set_sassist2(0, 0.4, 0, 0, initial_heading, mission_depth)
     moving_delay(cb, 2)
 
+    # Yaw to face buoy
+    print("Yaw to buoy")
+    cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, mission_depth)
+    buoy_heading = initial_heading + 15
+    while abs(cb.get_bno055_data().yaw - buoy_heading) > 3:
+        moving_delay(cb, 0.02)
+    moving_delay(cb, 1)
+
+    # Move towards buoy (dead reckon)
+    print("Go to buoy")
+    cb.set_sassist2(0, 0.4, 0, 0, buoy_heading, mission_depth)
+    moving_delay(cb, 2)
+
     # Stop motion
     print("Stopping")
     cb.set_local(0, 0, 0, 0, 0, 0)

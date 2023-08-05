@@ -37,16 +37,20 @@ net = cv2.dnn.readNet(cv_model_path)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 
-# def start_capture():
-#     video = cv2.VideoCapture(0)
-#     while True:
-#         ret, im = video.read()
-#         cv.set_frame(im)
-
 def start_capture():
+    video = cv2.VideoCapture(0)
+    video.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
+    video.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
+    video.set(cv2.CAP_PROP_EXPOSURE, 15)
     while True:
-        im = cv2.imread("/home/marcus/buoy1.png")
+        ret, im = video.read()
         cv.set_frame(im)
+
+# def start_capture():
+#     while True:
+#         im = cv2.imread("/home/marcus/buoy1.png")
+#         cv.set_frame(im)
+#         time.sleep(0.015)
 
 ################################################################################
 

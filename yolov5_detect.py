@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import torch
 import time
 import matplotlib.pyplot as plt
 import copy

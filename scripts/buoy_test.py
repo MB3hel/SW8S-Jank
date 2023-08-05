@@ -12,7 +12,6 @@ import serial
 import threading
 import os
 import cv2
-from math import abs
 from yolov5_detect import get_center_diffs_yolo
 
 ################################################################################
@@ -31,16 +30,22 @@ class CV:
 
 cv = CV()
 
-cv_model_path = "/home/sw8/SW8S-Java/app/models/buoy_640.onnx"
+cv_model_path = os.path.dirname(os.path.dirname(__file__)) + "/models/buoy_640.onnx"
 
 net = cv2.dnn.readNet(cv_model_path)
 net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 
+# def start_capture():
+#     video = cv2.VideoCapture(0)
+#     while True:
+#         ret, im = video.read()
+#         cv.set_frame(im)
+
 def start_capture():
-    video = cv2.VideoCapture(0)
-    ret, im = video.read()
-    cv.set_frame(im)
+    while True:
+        im = cv2.imread("/home/marcus/buoy2.png")
+        cv.set_frame(im)
 
 ################################################################################
 
@@ -107,11 +112,13 @@ def run(cb: ControlBoard, s: Simulator) -> int:
             frame = cv.get_frame()
             strafe_speed = 0.3
             strafe = 0
-            if frame != None:
-                diffs = get_center_diffs_yolo()
+            if frame is not None:
+                diffs = get_center_diffs_yolo(frame, net)
+                print(diffs)
                 if diffs != None:
-                    if abs(diffs["x"]) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
-                        strafe = strafe_speed if diffs["x"] < 0 else -strafe_speed
+                    xdiff = diffs["x"][0]
+                    if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                        strafe = strafe_speed if xdiff < 0 else -strafe_speed
                     else:
                         strafe = 0
             cb.set_sassist2(strafe, 0.4, 0, 0, initial_heading, mission_depth)

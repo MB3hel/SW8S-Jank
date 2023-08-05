@@ -38,10 +38,8 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 
 def start_capture():
-    video = cv2.VideoCapture(0)
-    video.set(cv2.CAP_PROP_FRAME_WIDTH, 800)
-    video.set(cv2.CAP_PROP_FRAME_HEIGHT, 600)
-    video.set(cv2.CAP_PROP_EXPOSURE, 15)
+    video = cv2.VideoCapture("v4l2src device=/dev/video0 ! image/jpeg, width=800, height=600, framerate=30/1", cv2.CAP_GSTREAMER)
+    # TODO: Exposure
     while True:
         ret, im = video.read()
         cv.set_frame(im)

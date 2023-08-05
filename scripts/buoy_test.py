@@ -44,7 +44,7 @@ net.setPreferableBackend(cv2.dnn.DNN_BACKEND_DEFAULT)
 
 def start_capture():
     while True:
-        im = cv2.imread("/home/marcus/buoy_none.png")
+        im = cv2.imread("/home/marcus/buoy_real1.png")
         cv.set_frame(im)
         time.sleep(0.015)
 

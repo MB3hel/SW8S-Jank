@@ -72,7 +72,6 @@ def start_capture():
 ################################################################################
 
 def meb_task():
-    return
     ser = serial.Serial("/dev/ttyACM2", 57600)
     while True:
         msg_id, msg = meb.read_msg(ser)

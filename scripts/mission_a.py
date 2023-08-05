@@ -51,6 +51,8 @@ def moving_delay(cb: ControlBoard, sec: float):
 
 
 def run(cb: ControlBoard, s: Simulator) -> int:
+    mission_depth = -0.7
+
     meb_thread = threading.Thread(target=meb_task, daemon=True)
     meb_thread.start()
 
@@ -64,36 +66,40 @@ def run(cb: ControlBoard, s: Simulator) -> int:
 
     # Submerge holding heading
     print("Submerging")
-    cb.set_sassist2(0, 0, 0, 0, initial_heading, -1.5)
+    cb.set_sassist2(0, 0, 0, 0, initial_heading, mission_depth)
     moving_delay(cb, 1.25)
 
     # Move forward maintaining same heading
     print("Moving forward")
-    cb.set_sassist2(0, 0.8, 0, 0, initial_heading, -1.5)
-    moving_delay(cb, 10)
+    cb.set_sassist2(0, 0.4, 0, 0, initial_heading, mission_depth)
+    moving_delay(cb, 3)
 
     # Do style points spins
     if True:
         # Yaw spins
         print("Spinning yaw")
-        cb.set_sassist1(0, 0, 1.0, 0, 0, -1.5)
+        cb.set_sassist1(0, 0, 0.6, 0, 0, mission_depth)
         moving_delay(cb, 5)
     else:
         # Roll spins
         print("Spinning roll")
-        cb.set_dhold(0, 0, 0, 0.8, 0, -1.5)
+        cb.set_dhold(0, 0, 0, 0.8, 0, mission_depth)
         moving_delay(cb, 5)
 
-    # Get back to correct heading
-    print("Fixing heading")
+    # Get back to correct orientation
+    print("Fixing orientation")
     print(initial_heading)
-    cb.set_sassist2(0, 0, 0, 0, initial_heading, -1.5)
-    moving_delay(cb, 3)
+    cb.set_sassist2(0, 0, 0, 0, initial_heading, mission_depth)
+    while abs(cb.get_bno055_data().pitch - 0) > 5 or \
+            abs(cb.get_bno055_data().roll - 0) > 5 or \
+            abs(cb.get_bno055_data().yaw - initial_heading) > 5:
+        moving_delay(cb, 0.02)
+    moving_delay(cb, 1)
 
     # Move forward
     print("Moving forward again")
-    cb.set_sassist2(0, 0.8, 0, 0, initial_heading, -1.5)
-    moving_delay(cb, 5)
+    cb.set_sassist2(0, 0.4, 0, 0, initial_heading, mission_depth)
+    moving_delay(cb, 2)
 
     # Stop motion
     print("Stopping")

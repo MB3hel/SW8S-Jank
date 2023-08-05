@@ -137,27 +137,29 @@ def run(cb: ControlBoard, s: Simulator) -> int:
         moving_delay(cb, 0.02)
     moving_delay(cb, 1)
 
-    # Move towards buoy (dead reckon)
-    print("Go to buoy")
-    cb.set_sassist2(0, 0.4, 0, 0, buoy_heading, mission_depth)
-    moving_delay(cb, 2)
+    if False:
+        # Move towards buoy (dead reckon)
+        print("Go to buoy")
+        cb.set_sassist2(0, 0.4, 0, 0, buoy_heading, mission_depth)
+        moving_delay(cb, 2)
+    else:
+        # try and find buoys (CV / ML)
+        while True:
+            frame = cv.get_frame()
+            strafe_speed = 0.3
+            strafe = 0
+            if frame != None:
+                diffs = get_center_diffs_yolo()
+                if diffs != None:
+                    if abs(diffs["x"]) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                        strafe = strafe_speed if diffs["x"] < 0 else -strafe_speed
+                    else:
+                        strafe = 0
+            cb.set_sassist2(strafe, 0.4, 0, 0, buoy_heading, mission_depth)
 
     # Stop motion
     print("Stopping")
     cb.set_local(0, 0, 0, 0, 0, 0)
-
-    # try and find buoys
-    while True:
-        frame = cv.get_frame()
-        strafe = 0
-        if frame != None:
-            diffs = get_center_diffs_yolo()
-            if diffs != None:
-                if abs(diffs["x"]) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
-                    strafe = 0.4 if diffs["x"] < 0 else -0.4
-                else:
-                    strafe = 0
-        cb.set_sassist2(strafe, 0.4, 0, 0, buoy_heading, mission_depth)
 
     return 0
 

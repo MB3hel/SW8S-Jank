@@ -86,7 +86,8 @@ def run(cb: ControlBoard, s: Simulator) -> int:
     meb_thread = threading.Thread(target=meb_task, daemon=True)
     meb_thread.start()
 
-    mission_depth = -0.7
+    mission_depth = -1.5
+    forward_speed = 0.8
 
     # Enable automatic reading of sensor data (and wait for it to start)
     cb.read_bno055_periodic(True)
@@ -103,7 +104,7 @@ def run(cb: ControlBoard, s: Simulator) -> int:
 
     # Move forward maintaining same heading
     print("Moving forward")
-    cb.set_sassist2(0, 0.4, 0, 0, initial_heading, mission_depth)
+    cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
     moving_delay(cb, 3)
 
     # Do style points spins
@@ -131,21 +132,22 @@ def run(cb: ControlBoard, s: Simulator) -> int:
 
     # Move forward
     print("Moving forward again")
-    cb.set_sassist2(0, 0.4, 0, 0, initial_heading, mission_depth)
+    cb.set_sassist2(0, forward_speed, 0, 0, initial_heading, mission_depth)
     moving_delay(cb, 2)
 
-    # Yaw to face buoy
+    # Yaw to face buoy & submerge more
+    buoy_depth = -2.0
     print("Yaw to buoy")
-    cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, mission_depth)
+    cb.set_sassist2(0, 0, 0, 0, initial_heading + 15, buoy_depth)
     buoy_heading = initial_heading + 15
     while abs(cb.get_bno055_data().yaw - buoy_heading) > 3:
         moving_delay(cb, 0.02)
-    moving_delay(cb, 1)
+    moving_delay(cb, 2)
 
     if False:
         # Move towards buoy (dead reckon)
         print("Go to buoy")
-        cb.set_sassist2(0, 0.4, 0, 0, buoy_heading, mission_depth)
+        cb.set_sassist2(0, forward_speed, 0, 0, buoy_heading, mission_depth)
         moving_delay(cb, 2)
     else:
         # try and find buoys (CV / ML)
@@ -155,13 +157,16 @@ def run(cb: ControlBoard, s: Simulator) -> int:
             strafe = 0
             if frame is not None:
                 diffs = get_center_diffs_yolo(frame, net)
-                xdiff = diffs["x"][0]
-                if diffs != None:
-                    if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
-                        strafe = strafe_speed if xdiff < 0 else -strafe_speed
+                if diffs != None and "x" in diffs:
+                    if not hasattr(diffs["x"], "__len__"):
+                        xdiff = diffs["x"]
+                        if abs(xdiff) > 50: # if the center of the screen X is within 50 pixels of the buoy target center average X
+                            strafe = strafe_speed if xdiff < 0 else -strafe_speed
+                        else:
+                            strafe = 0
                     else:
                         strafe = 0
-            cb.set_sassist2(strafe, 0.4, 0, 0, buoy_heading, mission_depth)
+            cb.set_sassist2(strafe, forward_speed, 0, 0, buoy_heading, mission_depth)
 
     # Stop motion
     print("Stopping")
